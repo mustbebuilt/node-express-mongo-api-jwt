@@ -1,5 +1,6 @@
 // VIEW CONTROLLER
 
+var ObjectId = require('mongodb').ObjectId; 
 
 module.exports = {
     viewAll: function (app, req, res) {
@@ -13,8 +14,9 @@ module.exports = {
     },
     viewItem: function (app, req, res) {
         console.info("View One controller")
-        let filmID = parseInt(req.params.filmID);
-        app.set('myDb').collection('filmsCollection').find({"filmID": filmID}).toArray(function(err, docs) {
+        let filmID = req.params.filmID;
+        var o_id = new ObjectId(filmID);
+        app.set('myDb').collection('filmsCollection').find({"_id": o_id}).toArray(function(err, docs) {
             if (err) {
                 console.error(err)
             }
@@ -28,9 +30,7 @@ module.exports = {
     addItem: function (app, req, res) {
         console.info("POST controller")
         var newFilm = req.body;
-        // Sort as filmID as INT
-        var filmIDAsInt = parseInt(newFilm.filmID);
-        newFilm.filmID = filmIDAsInt;
+        console.dir(newFilm);
         app.get('myDb').collection("filmsCollection").insertOne(newFilm,
             function (err, dbResp) {
                 if (err) {
@@ -47,12 +47,11 @@ module.exports = {
     amendItem: function (app, req, res) {
         console.info("PUT / UPDATE controller")
         var amendFilm = req.body;
-        // Sort as filmID as INT
-        let filmIDAsInt = parseInt(amendFilm.filmID);
-        console.info(filmIDAsInt);
-        amendFilm.filmID = filmIDAsInt;
+        let filmID = amendFilm.filmID;
+        var o_id = new ObjectId(filmID);
+        console.info(o_id);
         app.get('myDb').collection("filmsCollection").updateOne(
-            { "filmID": amendFilm.filmID },
+            { _id: o_id },
             { $set: { "filmName": amendFilm.filmName, "filmCert": amendFilm.filmCert } },
             function (err, dbResp) {
                 if (err) {
@@ -69,10 +68,9 @@ module.exports = {
         console.info("DELETE controller")
         var removeFilm = req.body;
         console.dir(removeFilm);
-        var filmIDAsInt = parseInt(removeFilm.filmID);
-        removeFilm.filmID = filmIDAsInt;
+        var o_id = new ObjectId(removeFilm.filmID);
         app.get('myDb').collection("filmsCollection").deleteOne(
-            { "filmID": removeFilm.filmID },
+            { _id: o_id },
             function (err, dbResp) {
                 if (err) {
                     console.error(err)
