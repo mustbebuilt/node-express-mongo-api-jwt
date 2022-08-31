@@ -1,16 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <link rel="stylesheet" href="css/main.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/main.css" />
+    <title>Api Demos</title>
+  </head>
+  <body>
     <div class="container">
-        <h1>Just the Index</h1>
-        <p><img src="images/dog.jpg" alt="Border Terrier"></p>
+      <header>
+        <h1>Fetch REST Demos</h1>
+      </header>
+      <main>
+        <section>
+          <div>
+            <p><a href="insert.html">Add Film</a></p>
+          </div>
+          <ul id="dom"></ul>
+        </section>
+      </main>
     </div>
-</body>
+  </body>
+  <script>
+    (function () {
+      // MongoDb
+      let api = "http://localhost:3000/api/film";
+      let displayList = [];
+      async function getData() {
+        const response = await fetch(api);
+        const json = await response.json();
+        return json;
+      }
+      getData()
+        .then((myJson) => {
+          console.dir(myJson);
+
+          //
+
+          myJson.forEach((obj) => {
+            console.log(obj);
+            // change from obj.filmID to obj._id for MongoDb
+            displayList.push(
+              `<li><a href="details.html?filmID=${obj._id}">${obj.filmTitle}</a></li>`
+            );
+          });
+          document.getElementById("dom").innerHTML = displayList.join("");
+        })
+        .catch(() => console.log("damn that Jason"));
+    })();
+  </script>
 </html>

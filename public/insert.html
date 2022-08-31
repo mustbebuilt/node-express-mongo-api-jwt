@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/main.css" />
+    <title>Insert Film</title>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Fetch REST Demos</h1>
+        <nav>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+          </ul>
+        </nav>
+      </header>
+      <main>
+        <section>
+          <h2>Edit</h2>
+          <form id="insertForm">
+            <div>
+              <label for="filmTitle">Film Title</label>
+              <input type="text" name="filmTitle" id="filmTitle" />
+            </div>
+            <div>
+              <label for="filmName">Film Certificate</label>
+              <input type="text" name="filmCertificate" id="filmCertificate" />
+            </div>
+            <div>
+              <label for="filmImage">Film Image</label>
+              <input type="text" name="filmImage" id="filmImage" />
+            </div>
+            <div>
+              <label for="filmPrice">Film Price</label>
+              <input type="text" name="filmPrice" id="filmPrice" />
+            </div>
+            <div>
+              <label for="filmDescription">Film Description</label>
+              <textarea
+                name="filmDescription"
+                id="filmDescription"
+                rows="5"
+              ></textarea>
+            </div>
+
+            <div>
+              <p class="myLabel">Star Rating</p>
+            </div>
+
+            <div>
+              <label><input type="radio" name="stars" value="0" />0</label>
+              <label><input type="radio" name="stars" value="1" />1</label>
+              <label><input type="radio" name="stars" value="2" />2</label>
+              <label><input type="radio" name="stars" value="3" />3</label>
+              <label><input type="radio" name="stars" value="4" />4</label>
+              <label><input type="radio" name="stars" value="5" />5</label>
+            </div>
+
+            <div>
+              <label for="releaseDate">Release Date</label>
+              <input type="text" name="releaseDate" id="releaseDate" />
+            </div>
+
+            <div>
+              <p>
+                <input
+                  type="submit"
+                  name="button"
+                  id="button"
+                  value="Add Film"
+                />
+              </p>
+            </div>
+          </form>
+        </section>
+      </main>
+    </div>
+  </body>
+  <script>
+    (function () {
+      // Insert Form
+      // MongoDb
+      let api = "http://localhost:3000/api/film";
+      document.getElementById("insertForm").addEventListener("submit", (ev) => {
+        ev.preventDefault();
+        var formData = new FormData(ev.target);
+        var sendObject = {};
+        formData.forEach(function (value, key) {
+          sendObject[key] = value;
+        });
+        console.dir(sendObject);
+        var sendStr = JSON.stringify(sendObject);
+        fetch(api, {
+          method: "POST",
+          mode: "cors",
+          body: sendStr,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.status)
+          .then((status) => {
+            if (status == 200) {
+              window.location.href = "index.html";
+            }
+          });
+      });
+    })();
+  </script>
+</html>

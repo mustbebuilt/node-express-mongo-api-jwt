@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/main.css" />
+    <title>Delete Film</title>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Fetch REST Demos</h1>
+                <nav>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+          </ul>
+        </nav>
+      </header>
+      <main>
+        <section>
+          <h2>Delete <span id="filmTitle""></span></h2>
+          <form id="deleteForm">
+            <input type="hidden" name="filmID" id="filmID" />
+
+            <div>
+              <p>
+                <input
+                  type="submit"
+                  name="button"
+                  id="button"
+                  value="Delete Film"
+                />
+              </p>
+            </div>
+          </form>
+          <h2><a href="index.html">Keep Film</a></h2>
+        </section>
+      </main>
+    </div>
+  </body>
+  <script>
+    (function () {
+      let urlParams = new URLSearchParams(window.location.search);
+      let filmID = urlParams.get("filmID");
+      // MongoDb
+      let api = `http://localhost:3000/api/film/${filmID}`;      
+      let displayList = [];
+      async function getData() {
+        const response = await fetch(api);
+        const json = await response.json();
+        return json;
+      }
+      getData()
+        .then((myJson) => {
+          console.dir(myJson);
+          document.getElementById("filmID").value = myJson.filmID;
+          document.getElementById("filmTitle").innerText = myJson.filmTitle;
+    
+        })
+        .catch(() => console.log("damn that Jason"));
+
+      // Delete Form
+
+      document.getElementById("deleteForm").addEventListener("submit", (ev) => {
+        ev.preventDefault();
+        fetch(api, {
+          method: "DELETE",
+          mode: "cors",
+        })
+          .then((response) => response.status)
+          .then((status) => {
+            if (status == 202 || status == 200) {
+              window.location.href = "index.html";
+            }
+          });
+      });
+    })();
+  </script>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/main.css" />
+    <title>Api Demos</title>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Fetch REST Demos</h1>
+        <nav>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+          </ul>
+        </nav>
+      </header>
+      <main>
+        <section>
+          <h2 id="filmTitle"></h2>
+          <p id="filmDescription"></p>
+          <p><a href="" id="edit">Edit</a></p>
+          <p><a href="" id="delete">Delete</a></p>
+        </section>
+      </main>
+    </div>
+  </body>
+  <script>
+    (function () {
+      let urlParams = new URLSearchParams(window.location.search);
+      let filmID = urlParams.get("filmID");
+      // MongoDb
+      let api = `http://localhost:3000/api/film/${filmID}`;
+      let displayList = [];
+      async function getData() {
+        const response = await fetch(api);
+        const json = await response.json();
+        return json;
+      }
+      getData()
+        .then((myJson) => {
+          console.dir(myJson);
+          document.getElementById("filmTitle").innerText = myJson.filmTitle;
+          document.getElementById("filmDescription").innerText =
+            myJson.filmDescription;
+          // change from obj.filmID to obj._id for MongoDb
+          document
+            .getElementById("edit")
+            .setAttribute("href", `edit.html?filmID=${myJson._id}`);
+          document
+            .getElementById("delete")
+            .setAttribute("href", `delete.html?filmID=${myJson._id}`);
+        })
+        .catch(() => console.log("damn that Jason"));
+    })();
+  </script>
+</html>

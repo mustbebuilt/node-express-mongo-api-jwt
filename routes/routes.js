@@ -1,43 +1,36 @@
-const express = require('express');
+const express = require("express");
 
 const router = express.Router();
 
-const myControllers = require('../controllers/controllers.js');
+const myControllers = require("../controllers/controllers.js");
 
-console.dir(myControllers);
+router.get("/main", (req, res) => {
+  return res.render("main", {
+    title: "EJS Example from Parts",
+    message: "Hello Template built in parts",
+    showMsg: true,
+    headingOne: "Page made from parts",
+  });
+});
 
-module.exports = (app) => {
+router.get("/api/film", (req, res) => {
+  myControllers.viewAll(req, res);
+});
 
-    router.get('/main', (req, res) => {
-        return res.render('main', {
-            title: 'EJS Example from Parts', 
-            message: 'Hello Template built in parts',
-            showMsg: true,
-            headingOne: 'Page made from parts'
-            });
-    });
+router.get("/api/film/:filmID", (req, res) => {
+  myControllers.viewItem(req, res);
+});
 
-    router.get('/allfilms', (req, res) => {
-        myControllers.viewAll(app, req, res);
-    });
+router.post("/api/film", (req, res) => {
+  myControllers.addItem(req, res);
+});
 
-    router.get('/film/:filmID', (req, res) => {
-        myControllers.viewItem(app, req, res);
-    });
+router.put("/api/film/:filmID", (req, res) => {
+  myControllers.amendItem(req, res);
+});
 
-    router.post('/api/film', (req, res) => {
-        myControllers.addItem(app, req, res);
-    });
+router.delete("/api/film/:filmID", (req, res) => {
+  myControllers.deleteItem(req, res);
+});
 
-    router.put('/api/film', (req, res) => {
-        myControllers.amendItem(app, req, res);
-    });
-
-    router.delete('/api/film', (req, res) => {
-        myControllers.deleteItem(app, req, res);
-    });
-
-  
-    return router;
-
-}
+module.exports = router;

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/main.css" />
+    <title>Edit Film</title>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Fetch REST Demos</h1>
+        <nav>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+          </ul>
+        </nav>
+      </header>
+      <main>
+        <section>
+          <h2>Edit</h2>
+          <form id="editForm">
+            <input type="hidden" name="filmID" id="filmID" />
+            <div>
+              <label for="filmTitle">Film Title</label>
+              <input type="text" name="filmTitle" id="filmTitle" />
+            </div>
+            <div>
+              <label for="filmName">Film Certificate</label>
+              <input type="text" name="filmCertificate" id="filmCertificate" />
+            </div>
+            <div>
+              <label for="filmImage">Film Image</label>
+              <input type="text" name="filmImage" id="filmImage" />
+            </div>
+            <div>
+              <label for="filmPrice">Film Price</label>
+              <input type="text" name="filmPrice" id="filmPrice" />
+            </div>
+            <div>
+              <label for="filmDescription">Film Description</label>
+              <textarea
+                name="filmDescription"
+                id="filmDescription"
+                rows="5"
+              ></textarea>
+            </div>
+
+            <div>
+              <p class="myLabel">Star Rating</p>
+            </div>
+
+            <div>
+              <label><input type="radio" name="stars" value="0" />0</label>
+              <label><input type="radio" name="stars" value="1" />1</label>
+              <label><input type="radio" name="stars" value="2" />2</label>
+              <label><input type="radio" name="stars" value="3" />3</label>
+              <label><input type="radio" name="stars" value="4" />4</label>
+              <label><input type="radio" name="stars" value="5" />5</label>
+            </div>
+
+            <div>
+              <label for="releaseDate">Release Date</label>
+              <input type="text" name="releaseDate" id="releaseDate" />
+            </div>
+
+            <div>
+              <p>
+                <input
+                  type="submit"
+                  name="button"
+                  id="button"
+                  value="Edit Film"
+                />
+              </p>
+            </div>
+          </form>
+          <h3 id="resp"></h3>
+        </section>
+      </main>
+    </div>
+  </body>
+  <script>
+    (function () {
+      let urlParams = new URLSearchParams(window.location.search);
+      let filmID = urlParams.get("filmID");
+      // MongoDb
+      let api = `http://localhost:3000/api/film/${filmID}`;
+      let displayList = [];
+      async function getData() {
+        const response = await fetch(api);
+        const json = await response.json();
+        return json;
+      }
+      getData()
+        .then((myJson) => {
+          console.dir(myJson);
+          // change from obj.filmID to obj._id for MongoDb
+          document.getElementById("filmID").value = myJson._id;
+          document.getElementById("filmTitle").value = myJson.filmTitle;
+          document.getElementById("filmCertificate").value =
+            myJson.filmCertificate;
+          document.getElementById("filmImage").value = myJson.filmImage;
+          document.getElementById("filmPrice").value = myJson.filmPrice;
+          document.getElementById("filmDescription").value =
+            myJson.filmDescription;
+          document.getElementById("releaseDate").value = myJson.releaseDate;
+          let starsAr = document.getElementsByName("stars");
+          for (let radioBtn of starsAr) {
+            if (myJson.stars == radioBtn.value) {
+              radioBtn.checked = true;
+            }
+          }
+        })
+        .catch(() => console.log("damn that Jason"));
+
+      // Edit Form
+
+      document.getElementById("editForm").addEventListener("submit", (ev) => {
+        ev.preventDefault();
+        var formData = new FormData(ev.target);
+        var sendObject = {};
+        formData.forEach(function (value, key) {
+          sendObject[key] = value;
+        });
+        console.dir(sendObject);
+        var sendStr = JSON.stringify(sendObject);
+        fetch(api, {
+          method: "PUT",
+          mode: "cors",
+          body: sendStr,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.status)
+          .then((status) => {
+            console.info(status);
+            if (status == 202 || status == 200) {
+              document.getElementById("resp").innerText = "Updated";
+            }
+          });
+      });
+    })();
+  </script>
+</html>
