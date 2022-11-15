@@ -33,4 +33,17 @@ router.delete("/api/film/:filmID", (req, res) => {
   myControllers.deleteItem(req, res);
 });
 
+router.post("/login", (req, res) => {
+  console.dir(req.body);
+  let username = req.body.user;
+  let password = req.body.password;
+  myControllers.checkLogin(req, res, username, password);
+  //
+});
+
+router.get("/auth", (req, res) => {
+  myControllers.authorize(req, res);
+  //
+});
+
 module.exports = router;

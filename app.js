@@ -1,8 +1,16 @@
 const express = require("express");
 const path = require("path");
-const port = 3000;
+const cors = require("cors");
+const port = 3001;
 
 const app = express();
+
+// add cors
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 
 // add for RESTful
 app.use(express.json());
@@ -40,6 +48,6 @@ app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });
 
-console.log("Express on 3000");
+console.log("Express on 3001");
 
 module.exports = app;

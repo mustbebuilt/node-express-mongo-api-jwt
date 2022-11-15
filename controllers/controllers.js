@@ -1,6 +1,9 @@
 // VIEW CONTROLLER
 
 const dbo = require("../db/connection");
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
+const jwt = require("jsonwebtoken");
 var ObjectId = dbo.getObjectId();
 
 module.exports = {
@@ -36,20 +39,25 @@ module.exports = {
   addItem: function (req, res) {
     console.info("POST controller");
     var newFilm = req.body;
-    console.dir(newFilm);
-    dbo
-      .getDb()
-      .collection("filmsCollection")
-      .insertOne(newFilm, function (err, dbResp) {
-        if (err) {
-          console.error(err);
-        }
-        if (dbResp.insertedCount === 1) {
-          res.json({ msg: "Successfully Added" + dbResp.insertedId });
-        } else {
-          res.json({ msg: "Not Found" });
-        }
-      });
+    const isEmpty = Object.keys(newFilm).length === 0;
+    if (!isEmpty) {
+      console.dir(newFilm);
+      dbo
+        .getDb()
+        .collection("filmsCollection")
+        .insertOne(newFilm, function (err, dbResp) {
+          if (err) {
+            console.error(err);
+          }
+          if (dbResp.acknowledged === true) {
+            //res.json({ msg: "Successfully Added" });
+            res.sendStatus(200);
+          } else {
+            //res.json({ msg: "Not Found" });
+            res.sendStatus(403);
+          }
+        });
+    }
   },
   amendItem: function (req, res) {
     console.info("PUT / UPDATE controller");
@@ -73,9 +81,11 @@ module.exports = {
             console.error(err);
           }
           if (dbResp.modifiedCount === 1) {
-            res.json({ msg: "Successfully Amended" });
+            // res.json({ msg: "Successfully Amended" });
+            res.sendStatus(200);
           } else {
-            res.json({ msg: "Not Found" });
+            // res.json({ msg: "Not Found" });
+            res.sendStatus(403);
           }
         }
       );
@@ -97,5 +107,68 @@ module.exports = {
           res.json({ msg: "Not Found" });
         }
       });
+  },
+
+  checkLogin: function (req, res, username, password) {
+    console.info(password);
+    dbo
+      .getDb()
+      .collection("appUsers")
+      .find({ name: username })
+      .toArray(function (err, docs) {
+        console.info(docs);
+        if (err) {
+          console.error(err);
+        }
+        if (docs.length > 0) {
+          ///////
+          console.info(password);
+          console.info(docs[0].password);
+          bcrypt.compare(password, docs[0].password, function (err, result) {
+            if (result == true) {
+              let oid = docs[0]._id.toString();
+              const user = {
+                id: oid,
+                username: username,
+              };
+              console.dir(user);
+              jwt.sign({ user: user }, "secretkey", (err, token) => {
+                res.status(200).json({
+                  message: "Auth granted, welcome!",
+                  jwt: token,
+                });
+              });
+              // res.send("/example");
+            } else {
+              res.sendStatus(403);
+            }
+          });
+        } else {
+          res.send("/login");
+        }
+      });
+  },
+  authorize: function (req, res) {
+    const bearerHeader = req.headers["authorization"];
+
+    if (typeof bearerHeader !== "undefined") {
+      const bearerToken = bearerHeader.split(" ")[1];
+      req.token = bearerToken;
+      console.info(req.token);
+      jwt.verify(req.token, "secretkey", (err, authData) => {
+        if (err) {
+          res.sendStatus(403);
+        } else {
+          return true;
+          // res.json({
+          //   message: "Welcome",
+          // });
+        }
+      });
+    } else {
+      return false;
+      // res.sendStatus(403);
+      // console.info("no");
+    }
   },
 };
